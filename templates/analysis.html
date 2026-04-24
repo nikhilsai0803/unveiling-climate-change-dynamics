@@ -1,0 +1,834 @@
+{% extends "base.html" %}
+{% block title %}Analysis | Unveiling Climate Change Dynamics Through Earth Surface Temperature Analysis{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ═══════════ ANALYSIS PAGE — PREMIUM DASHBOARD ═══════════ */
+
+/* Hero header */
+.analysis-hero {
+  padding: 7rem 1.5rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 2rem;
+}
+.analysis-hero-left {}
+.analysis-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 1rem;
+}
+.analysis-hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px; height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  border-radius: 2px;
+}
+.analysis-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+.analysis-hero p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  max-width: 520px;
+}
+
+/* Live indicator */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  background: rgba(52,211,153,0.08);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--green);
+  white-space: nowrap;
+}
+.live-dot-green {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 1.8s infinite;
+}
+
+/* ── KPI STRIP ── */
+.kpi-strip {
+  max-width: 1200px;
+  margin: 0 auto 2.5rem;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.kpi-cell {
+  background: var(--bg-2);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-cell::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.3s;
+}
+.kpi-cell:hover { background: var(--glass); }
+.kpi-cell:hover::before { background: linear-gradient(90deg, var(--cyan), var(--green)); }
+.kpi-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.kpi-label {
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.kpi-delta {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  margin-top: 0.3rem;
+}
+.delta-up { background: rgba(248,113,113,0.12); color: var(--red); }
+.delta-neutral { background: rgba(96,165,250,0.12); color: var(--blue); }
+
+/* ── MAIN GRID ── */
+.analysis-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.col-full { grid-column: 1 / -1; }
+.col-left { grid-column: 1 / 2; }
+.col-right { grid-column: 2 / 3; }
+
+/* ── CHART PANELS ── */
+.panel {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.panel:hover { border-color: rgba(56,189,248,0.2); transform: translateY(-1px); }
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.panel-title-group { display: flex; flex-direction: column; gap: 0.15rem; }
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.panel-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.panel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.badge-cyan { background: rgba(56,189,248,0.1); color: var(--cyan); border: 1px solid rgba(56,189,248,0.2); }
+.badge-amber { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+.badge-green { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.badge-red { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+.badge-purple { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.badge-blue { background: rgba(96,165,250,0.1); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+
+.panel-body { padding: 1.25rem 1.5rem; }
+.panel-body-canvas { padding: 1.25rem 1.5rem; position: relative; }
+
+/* ── WARMING TICKER (Big hero number) ── */
+.warming-ticker-panel {
+  background: linear-gradient(135deg, rgba(248,113,113,0.06) 0%, rgba(251,191,36,0.04) 100%);
+  border: 1px solid rgba(248,113,113,0.15);
+}
+.warming-ticker-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 2.5rem;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.warming-main {}
+.warming-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(248,113,113,0.7);
+  margin-bottom: 0.5rem;
+}
+.warming-number {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--red) 0%, var(--amber) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.warming-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  max-width: 260px;
+  line-height: 1.6;
+}
+.warming-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(248,113,113,0.1);
+  border: 1px solid rgba(248,113,113,0.12);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-width: 320px;
+}
+.warming-stat {
+  background: rgba(2,6,23,0.6);
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+.ws-val {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.ws-lab {
+  font-size: 0.67rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+/* ── INSIGHT CARDS ROW ── */
+.insight-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 0;
+}
+.insight-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.insight-card:hover { transform: translateY(-2px); }
+.insight-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 4px 4px 0 0;
+}
+.insight-card.ic-red { border-color: rgba(248,113,113,0.15); }
+.insight-card.ic-red::after { background: linear-gradient(90deg, var(--red), var(--amber)); }
+.insight-card.ic-amber { border-color: rgba(251,191,36,0.15); }
+.insight-card.ic-amber::after { background: linear-gradient(90deg, var(--amber), var(--green)); }
+.insight-card.ic-cyan { border-color: rgba(56,189,248,0.15); }
+.insight-card.ic-cyan::after { background: linear-gradient(90deg, var(--cyan), var(--blue)); }
+
+.insight-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+.insight-title { font-family: var(--font-display); font-size: 0.92rem; font-weight: 700; margin-bottom: 0.4rem; }
+.insight-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.65; }
+
+/* ── MODEL METRICS REDESIGN ── */
+.metrics-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+.metrics-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.metrics-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.metric-model-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.metric-model-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.metric-model-name { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
+.metric-model-rows { padding: 0.5rem 0; }
+.metric-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.15s;
+}
+.metric-row:last-child { border-bottom: none; }
+.metric-row:hover { background: rgba(255,255,255,0.03); }
+.metric-row-header {
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+.mr-model { color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; }
+.mr-num { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-primary); }
+.mr-r2 { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 700; }
+.r2-excellent { color: var(--green); }
+.r2-good { color: var(--cyan); }
+.r2-ok { color: var(--amber); }
+
+/* R2 bar */
+.r2-bar-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.r2-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; flex: 1; overflow: hidden; }
+.r2-fill { height: 100%; border-radius: 2px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── EMPTY IMAGE PLACEHOLDER ── */
+.img-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: rgba(255,255,255,0.02);
+  border: 2px dashed rgba(255,255,255,0.06);
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+.img-placeholder span:first-child { font-size: 2rem; }
+
+/* ── INSIGHTS SECTION ── */
+.insights-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .analysis-hero { grid-template-columns: 1fr; }
+  .analysis-grid { grid-template-columns: 1fr; }
+  .col-full, .col-left, .col-right { grid-column: 1; }
+  .kpi-strip { grid-template-columns: repeat(3,1fr); }
+  .warming-stats { min-width: 0; grid-template-columns: repeat(3,1fr); }
+  .metrics-cards { grid-template-columns: 1fr; }
+  .insight-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .kpi-strip { grid-template-columns: repeat(2,1fr); }
+  .warming-ticker-inner { padding: 1.5rem; }
+  .warming-number { font-size: 3rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═════════════════════════════════════
+     HERO HEADER
+═════════════════════════════════════ -->
+<div class="analysis-hero fade-up">
+  <div class="analysis-hero-left">
+    <div class="analysis-hero-eyebrow">Exploratory Data Analysis</div>
+    <h1>Climate Change<br><span class="grad">Dynamics</span><br>Analysis</h1>
+    <p>120+ years of Berkeley Earth surface temperature records — visualised, modelled, and made actionable.</p>
+  </div>
+  <div>
+    <div class="live-indicator">
+      <span class="live-dot-green"></span>
+      Live ML Models Active
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════
+     KPI STRIP
+═════════════════════════════════════ -->
+{% if chart_data and chart_data.stats %}
+<div class="kpi-strip fade-up-1">
+  <div class="kpi-cell">
+    <span class="kpi-value">{{ chart_data.stats.min_year }}</span>
+    <div class="kpi-label">Start Year</div>
+  </div>
+  <div class="kpi-cell">
+    <span class="kpi-value">{{ chart_data.stats.max_year }}</span>
+    <div class="kpi-label">End Year</div>
+  </div>
+  <div class="kpi-cell">
+    <span class="kpi-value" style="font-size:1.2rem;">{{ "{:,}".format(chart_data.stats.total_rows) }}</span>
+    <div class="kpi-label">Records</div>
+  </div>
+  <div class="kpi-cell">
+    <span class="kpi-value" style="color:var(--amber);">{{ chart_data.stats.mean_temp }}°</span>
+    <div class="kpi-label">Global Mean</div>
+    <span class="kpi-delta delta-neutral">Celsius avg</span>
+  </div>
+  <div class="kpi-cell">
+    <span class="kpi-value" style="color:var(--blue);">{{ chart_data.stats.min_temp }}°</span>
+    <div class="kpi-label">All-Time Low</div>
+    <span class="kpi-delta delta-neutral">recorded</span>
+  </div>
+  <div class="kpi-cell">
+    <span class="kpi-value" style="color:var(--red);">{{ chart_data.stats.max_temp }}°</span>
+    <div class="kpi-label">All-Time High</div>
+    <span class="kpi-delta delta-up">↑ warming</span>
+  </div>
+</div>
+{% endif %}
+
+<!-- ═════════════════════════════════════
+     WARMING TICKER + ANNUAL TREND
+═════════════════════════════════════ -->
+<div class="analysis-grid">
+
+  <!-- Warming Ticker — full width -->
+  <div class="col-full panel warming-ticker-panel scroll-reveal">
+    <div class="warming-ticker-inner">
+      <div class="warming-main">
+        <div class="warming-label">Global Warming Since Pre-Industrial Era</div>
+        <div class="warming-number">+1.2°C</div>
+        <div class="warming-desc">Earth's average surface temperature has risen by approximately 1.2°C since the late 19th century — with acceleration post-1980.</div>
+      </div>
+      <div class="warming-stats">
+        <div class="warming-stat">
+          <span class="ws-val" style="color:var(--amber);">0.2°C</span>
+          <div class="ws-lab">Per Decade</div>
+        </div>
+        <div class="warming-stat">
+          <span class="ws-val" style="color:var(--red);">1.5°C</span>
+          <div class="ws-lab">Paris Target</div>
+        </div>
+        <div class="warming-stat">
+          <span class="ws-val" style="color:var(--cyan);">420</span>
+          <div class="ws-lab">CO₂ ppm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annual Trend Chart — full width -->
+  <div class="col-full panel scroll-reveal">
+    <div class="panel-header">
+      <div class="panel-title-group">
+        <div class="panel-title">Annual Land Surface Temperature Trend</div>
+        <div class="panel-sub">{{ chart_data.stats.min_year if chart_data else '1850' }} – {{ chart_data.stats.max_year if chart_data else '2015' }} · Global average · Berkeley Earth dataset</div>
+      </div>
+      <span class="panel-badge badge-cyan">Line Chart</span>
+    </div>
+    <div class="panel-body-canvas" style="height:340px;">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Decade Bar Chart -->
+  <div class="col-left panel scroll-reveal">
+    <div class="panel-header">
+      <div class="panel-title-group">
+        <div class="panel-title">Temperature by Decade</div>
+        <div class="panel-sub">Decadal mean · Every decade since 1850s</div>
+      </div>
+      <span class="panel-badge badge-amber">Bar Chart</span>
+    </div>
+    <div class="panel-body-canvas" style="height:300px;">
+      <canvas id="decadeChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Seasonal Cycle Chart -->
+  <div class="col-right panel scroll-reveal">
+    <div class="panel-header">
+      <div class="panel-title-group">
+        <div class="panel-title">Seasonal Cycle — All-Time Average</div>
+        <div class="panel-sub">Monthly mean across all years in dataset</div>
+      </div>
+      <span class="panel-badge badge-purple">Radar / Line</span>
+    </div>
+    <div class="panel-body-canvas" style="height:300px;">
+      <canvas id="seasonChart"></canvas>
+    </div>
+  </div>
+
+</div><!-- /analysis-grid -->
+
+
+<!-- ═════════════════════════════════════
+     MODEL PERFORMANCE
+═════════════════════════════════════ -->
+{% if metrics %}
+<div class="metrics-section">
+  <div class="metrics-section-header scroll-reveal">
+    <div>
+      <div class="analysis-hero-eyebrow" style="margin-bottom:0.5rem;">ML Evaluation</div>
+      <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;">Model Performance Metrics</div>
+    </div>
+    <span class="panel-badge badge-green" style="font-size:0.75rem;padding:0.4rem 1rem;">scikit-learn · Evaluated on test split</span>
+  </div>
+
+  <div class="metrics-cards">
+    {% macro metric_card(m, label, color) %}
+    {% if m %}
+    <div class="metric-model-card scroll-reveal">
+      <div class="metric-model-header">
+        <div class="metric-model-name">{{ label }}</div>
+        <span class="panel-badge badge-{{ color }}">2 Models</span>
+      </div>
+      <div class="metric-row-header">
+        <span>Model</span><span>RMSE</span><span>MAE</span><span>R² Score</span>
+      </div>
+      <div class="metric-model-rows">
+        {% if m.linear_regression %}
+        {% set r2 = m.linear_regression.r2 %}
+        <div class="metric-row">
+          <span class="mr-model">Linear Regression</span>
+          <span class="mr-num">{{ "%.3f"|format(m.linear_regression.rmse) }}</span>
+          <span class="mr-num">{{ "%.3f"|format(m.linear_regression.mae) }}</span>
+          <div class="r2-bar-wrap">
+            <div class="r2-bar"><div class="r2-fill" style="width:{{ (r2*100)|round }}%;background:{% if r2 > 0.9 %}var(--green){% elif r2 > 0.75 %}var(--cyan){% else %}var(--amber){% endif %};"></div></div>
+            <span class="mr-r2 {% if r2 > 0.9 %}r2-excellent{% elif r2 > 0.75 %}r2-good{% else %}r2-ok{% endif %}">{{ "%.3f"|format(r2) }}</span>
+          </div>
+        </div>
+        {% endif %}
+        {% if m.random_forest %}
+        {% set r2 = m.random_forest.r2 %}
+        <div class="metric-row">
+          <span class="mr-model">Random Forest</span>
+          <span class="mr-num">{{ "%.3f"|format(m.random_forest.rmse) }}</span>
+          <span class="mr-num">{{ "%.3f"|format(m.random_forest.mae) }}</span>
+          <div class="r2-bar-wrap">
+            <div class="r2-bar"><div class="r2-fill" style="width:{{ (r2*100)|round }}%;background:{% if r2 > 0.9 %}var(--green){% elif r2 > 0.75 %}var(--cyan){% else %}var(--amber){% endif %};"></div></div>
+            <span class="mr-r2 {% if r2 > 0.9 %}r2-excellent{% elif r2 > 0.75 %}r2-good{% else %}r2-ok{% endif %}">{{ "%.3f"|format(r2) }}</span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% endmacro %}
+
+    {% if metrics.city %}{{ metric_card(metrics.city, "City-Level Models", "cyan") }}{% endif %}
+    {% if metrics.global %}{{ metric_card(metrics.global, "Global Average Models", "amber") }}{% endif %}
+  </div>
+</div>
+{% endif %}
+
+
+<!-- ═════════════════════════════════════
+     KEY INSIGHTS
+═════════════════════════════════════ -->
+<div class="insights-section">
+  <div class="analysis-hero-eyebrow scroll-reveal" style="margin-bottom:0.75rem;">Key Findings</div>
+  <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:1.5rem;" class="scroll-reveal">What the Data Tells Us</div>
+
+  <div class="insight-row">
+    <div class="insight-card ic-red scroll-reveal">
+      <div class="insight-icon">📈</div>
+      <div class="insight-title">Consistent Warming Signal</div>
+      <div class="insight-body">Every decade since the 1970s has been warmer than the previous one. The 2010s recorded the highest decade-average in the 165-year dataset, with no sign of reversal.</div>
+    </div>
+    <div class="insight-card ic-amber scroll-reveal" style="transition-delay:0.1s">
+      <div class="insight-icon">⚡</div>
+      <div class="insight-title">Rate of Change Doubling</div>
+      <div class="insight-body">Post-1980 warming is approximately twice the rate of the full 20th century average — a clear non-linear acceleration tied to compounding greenhouse gas accumulation.</div>
+    </div>
+    <div class="insight-card ic-cyan scroll-reveal" style="transition-delay:0.2s">
+      <div class="insight-icon">❄️</div>
+      <div class="insight-title">Winter Amplification Effect</div>
+      <div class="insight-body">Winter months show disproportionate warming vs summer in most northern latitudes — contributing to earlier springs, later frosts, and disrupted agricultural cycles globally.</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const chartData = {{ chart_data | tojson | safe }};
+
+Chart.defaults.color = '#64748b';
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 11;
+
+function initCharts(d) {
+  if (!d || !d.annual_years) return;
+
+  // ── Colour palette ──
+  const CYAN   = '#38bdf8';
+  const GREEN  = '#34d399';
+  const AMBER  = '#fbbf24';
+  const RED    = '#f87171';
+  const PURPLE = '#a78bfa';
+  const MUTED  = 'rgba(255,255,255,0.06)';
+
+  // ── Shared grid options ──
+  const grid = {
+    color: MUTED,
+    drawTicks: false,
+  };
+  const ticks = { padding: 10 };
+  const tooltip = {
+    backgroundColor: 'rgba(10,15,30,0.95)',
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    titleColor: '#f1f5f9',
+    bodyColor: '#94a3b8',
+    padding: 12,
+    cornerRadius: 8,
+    titleFont: { family: "'Syne', sans-serif", size: 12, weight: '700' },
+    bodyFont: { family: "'DM Mono', monospace", size: 11 },
+  };
+
+  // ─── 1. Annual Trend (Gradient line) ───
+  const baseline = d.annual_temps.slice(0, 50).reduce((a, b) => a + b, 0) / 50;
+  const anomalies = d.annual_temps.map(t => +(t - baseline).toFixed(3));
+
+  const trendCtx = document.getElementById('trendChart');
+  if (trendCtx) {
+    const gradLine = trendCtx.getContext('2d').createLinearGradient(0, 0, trendCtx.offsetWidth || 800, 0);
+    gradLine.addColorStop(0,   '#60a5fa');
+    gradLine.addColorStop(0.5, CYAN);
+    gradLine.addColorStop(1,   RED);
+
+    const gradFill = trendCtx.getContext('2d').createLinearGradient(0, 0, 0, 320);
+    gradFill.addColorStop(0,   'rgba(248,113,113,0.18)');
+    gradFill.addColorStop(0.6, 'rgba(56,189,248,0.06)');
+    gradFill.addColorStop(1,   'rgba(56,189,248,0)');
+
+    new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: d.annual_years,
+        datasets: [{
+          label: 'Temp Anomaly (°C vs 1850–1900)',
+          data: anomalies,
+          borderColor: gradLine,
+          backgroundColor: gradFill,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: RED,
+          fill: true,
+          tension: 0.4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            ...tooltip,
+            callbacks: {
+              label: ctx => `  Anomaly: ${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y.toFixed(3)}°C`
+            }
+          }
+        },
+        scales: {
+          x: {
+            border: { display: false },
+            grid: { ...grid, drawOnChartArea: false },
+            ticks: { ...ticks, maxTicksLimit: 10, callback: (v, i) => d.annual_years[i] % 20 === 0 ? d.annual_years[i] : null }
+          },
+          y: {
+            border: { display: false },
+            grid,
+            ticks: { ...ticks, callback: v => (v > 0 ? '+' : '') + v.toFixed(2) + '°' }
+          }
+        }
+      }
+    });
+  }
+
+  // ─── 2. Decade Bar (Heat-mapped) ───
+  const decadeCtx = document.getElementById('decadeChart');
+  if (decadeCtx) {
+    const baseTemp = d.decade_temps[0];
+    const barColors = d.decade_temps.map(t => {
+      const delta = t - baseTemp;
+      if (delta > 0.6) return RED;
+      if (delta > 0.3) return AMBER;
+      if (delta > 0.1) return GREEN;
+      return CYAN;
+    });
+
+    new Chart(decadeCtx, {
+      type: 'bar',
+      data: {
+        labels: d.decade_labels,
+        datasets: [{
+          label: 'Avg Temp (°C)',
+          data: d.decade_temps,
+          backgroundColor: barColors.map(c => c + '99'),
+          borderColor: barColors,
+          borderWidth: 1.5,
+          borderRadius: 4,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            ...tooltip,
+            callbacks: { label: ctx => `  ${ctx.parsed.y.toFixed(3)}°C` }
+          }
+        },
+        scales: {
+          x: { border: { display: false }, grid: { ...grid, drawOnChartArea: false }, ticks },
+          y: {
+            border: { display: false }, grid,
+            ticks: { ...ticks, callback: v => v.toFixed(1) + '°' },
+            min: Math.min(...d.decade_temps) - 0.3,
+          }
+        }
+      }
+    });
+  }
+
+  // ─── 3. Seasonal Cycle (Smooth filled line) ───
+  const seasonCtx = document.getElementById('seasonChart');
+  if (seasonCtx) {
+    const gradSeason = seasonCtx.getContext('2d').createLinearGradient(0, 0, seasonCtx.offsetWidth || 500, 0);
+    gradSeason.addColorStop(0,    '#60a5fa');
+    gradSeason.addColorStop(0.25, GREEN);
+    gradSeason.addColorStop(0.5,  RED);
+    gradSeason.addColorStop(0.75, AMBER);
+    gradSeason.addColorStop(1,    '#60a5fa');
+
+    const gradSeasonFill = seasonCtx.getContext('2d').createLinearGradient(0, 0, 0, 280);
+    gradSeasonFill.addColorStop(0, 'rgba(56,189,248,0.15)');
+    gradSeasonFill.addColorStop(1, 'rgba(56,189,248,0)');
+
+    new Chart(seasonCtx, {
+      type: 'line',
+      data: {
+        labels: d.month_labels,
+        datasets: [{
+          label: 'Monthly Avg (°C)',
+          data: d.month_temps,
+          borderColor: gradSeason,
+          backgroundColor: gradSeasonFill,
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: d.month_temps.map((v, i) => i < 2 || i > 9 ? '#60a5fa' : i > 4 && i < 9 ? RED : GREEN),
+          pointBorderColor: 'var(--bg-2)',
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            ...tooltip,
+            callbacks: { label: ctx => `  ${ctx.parsed.y.toFixed(3)}°C` }
+          }
+        },
+        scales: {
+          x: { border: { display: false }, grid: { ...grid, drawOnChartArea: false }, ticks },
+          y: {
+            border: { display: false }, grid,
+            ticks: { ...ticks, callback: v => v.toFixed(1) + '°' }
+          }
+        }
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => initCharts(chartData));
+</script>
+{% endblock %}

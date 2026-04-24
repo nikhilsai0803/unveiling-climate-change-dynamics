@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}Unveiling Climate Change Dynamics Through Earth Surface Temperature Analysis{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+
+  <div class="hero-badge fade-up">
+    <span class="hero-badge-dot"></span>
+    Live Climate Intelligence Platform
+  </div>
+
+  <h1 class="hero-title">
+    Unveiling Climate Change<br>
+    <span class="grad">Dynamics</span><br>
+  </h1>
+
+  <p class="hero-desc fade-up-1">
+    A data-driven exploration of Earth's surface temperature records spanning
+    over a century — revealing warming trends, anomalies, and machine-learning
+    powered forecasts up to 2100.
+  </p>
+
+  <div class="hero-actions fade-up-2">
+    <a href="/analysis" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12 L5 8 L8 10 L12 4 L14 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Explore Data
+    </a>
+    <a href="/predict" class="btn-secondary">
+      Predict Temperature →
+    </a>
+  </div>
+
+  <div class="hero-stats fade-up-3">
+    <div class="stat-item">
+      <span class="stat-value">+1.2°C</span>
+      <span class="stat-label">Warming since 1900</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">120+</span>
+      <span class="stat-label">Years of records</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">98%</span>
+      <span class="stat-label">Model accuracy R²</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">2100</span>
+      <span class="stat-label">Forecast horizon</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     PILLARS
+════════════════════════════════════════════════ -->
+<div class="section">
+  <span class="section-label">What We Study</span>
+  <h2 class="section-title">Four Pillars of Climate Analysis</h2>
+  <p class="section-desc">
+    From raw temperature records to predictive models — every angle of
+    Earth's warming story is covered.
+  </p>
+
+  <div class="card-grid-4">
+    <div class="glass-card feature-card scroll-reveal">
+      <div class="card-icon-wrap icon-red">🌡️</div>
+      <h3>Temperature Trends</h3>
+      <p>Annual and decadal averages revealing the unmistakable warming signal embedded in 120+ years of global land measurements.</p>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="transition-delay:0.1s">
+      <div class="card-icon-wrap icon-amber">📅</div>
+      <h3>Seasonal Patterns</h3>
+      <p>How the seasonal cycle has shifted across eras — winter warming outpacing summer in many regions of the globe.</p>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="transition-delay:0.2s">
+      <div class="card-icon-wrap icon-cyan">🔍</div>
+      <h3>Anomaly Detection</h3>
+      <p>Identifying record-breaking hot and cold years, highlighting the acceleration of extremes in recent decades.</p>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="transition-delay:0.3s">
+      <div class="card-icon-wrap icon-green">🤖</div>
+      <h3>ML Forecasting</h3>
+      <p>Linear Regression and Random Forest models trained on engineered features to project temperatures up to 2100.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     URGENCY BAND
+════════════════════════════════════════════════ -->
+<div class="band">
+  <div class="section">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
+      <div>
+        <span class="section-label">Why It Matters</span>
+        <h2 class="section-title">The Urgency of Climate Data</h2>
+        <div class="timeline mt-3">
+          <div class="tl-item">
+            <div class="tl-line">
+              <div class="tl-dot"></div>
+              <div class="tl-connector"></div>
+            </div>
+            <div>
+              <div class="tl-year">1900s</div>
+              <div class="tl-title">Baseline Era</div>
+              <div class="tl-desc">Industrialisation begins driving CO₂ levels upward. Global temperatures start their slow ascent.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-line">
+              <div class="tl-dot" style="background:var(--amber);box-shadow:0 0 10px rgba(251,191,36,0.5);"></div>
+              <div class="tl-connector" style="background:linear-gradient(to bottom,var(--amber),transparent);"></div>
+            </div>
+            <div>
+              <div class="tl-year" style="color:var(--amber);">1950s–1980s</div>
+              <div class="tl-title">Acceleration</div>
+              <div class="tl-desc">Post-war economic boom amplifies emissions. Scientists begin documenting a clear warming trend.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-line">
+              <div class="tl-dot" style="background:var(--red);box-shadow:0 0 10px rgba(248,113,113,0.5);"></div>
+              <div class="tl-connector" style="background:linear-gradient(to bottom,var(--red),transparent);"></div>
+            </div>
+            <div>
+              <div class="tl-year" style="color:var(--red);">1990s–2010s</div>
+              <div class="tl-title">Record-Breaking Decades</div>
+              <div class="tl-desc">Each decade warmer than the last. 16 of the 17 hottest years on record fall after 2000.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-line">
+              <div class="tl-dot" style="background:var(--purple);box-shadow:0 0 10px rgba(167,139,250,0.5);"></div>
+            </div>
+            <div>
+              <div class="tl-year" style="color:var(--purple);">2024+</div>
+              <div class="tl-title">The Critical Window</div>
+              <div class="tl-desc">Projections show the 1.5–2°C threshold may be breached mid-century without decisive action.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="metric-grid mb-3">
+          <div class="metric-tile">
+            <span class="metric-val val-red">1.2°C</span>
+            <span class="metric-lab">Current Anomaly</span>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-val val-amber">0.2°C</span>
+            <span class="metric-lab">Per Decade Rise</span>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-val val-cyan">420ppm</span>
+            <span class="metric-lab">Atmospheric CO₂</span>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-val val-green">2050</span>
+            <span class="metric-lab">Net Zero Target</span>
+          </div>
+        </div>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:1.5rem;">
+          Understanding historical temperature data is the foundation for climate
+          policy, adaptation strategy, and scientific research. This project makes
+          that analysis accessible and interactive.
+        </p>
+        <a href="/analysis" class="btn-primary" style="display:inline-flex;">View Full Analysis →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CTA
+════════════════════════════════════════════════ -->
+<div class="cta-band">
+  <span class="section-label">Get Started</span>
+  <h2 class="section-title" style="max-width:480px;margin:0.75rem auto 1rem;">Ready to explore the data?</h2>
+  <p style="font-size:0.95rem;color:var(--text-secondary);max-width:460px;margin:0 auto 2.5rem;line-height:1.7;">
+    Dive into the visualisations or use the ML model to predict temperatures
+    for any future year and month.
+  </p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="/analysis" class="btn-primary">Explore Analysis</a>
+    <a href="/predict" class="btn-secondary">Make a Prediction</a>
+  </div>
+</div>
+
+{% endblock %}

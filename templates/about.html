@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}About | Unveiling Climate Change Dynamics Through Earth Surface Temperature Analysis{% endblock %}
+
+{% block content %}
+
+<div class="about-hero fade-up">
+  <span class="section-label">About This Project</span>
+  <h1 class="section-title">Unveiling Climate Change Dynamics Through Earth Surface Temperature Analysis</h1>
+  <p style="font-size:1.05rem;color:var(--text-secondary);margin-top:1rem;line-height:1.75;max-width:680px;">
+    A full-stack data science project combining classical machine learning,
+    exploratory data analysis, and a modern web interface to make climate
+    data accessible and actionable.
+  </p>
+</div>
+
+<div class="section" style="padding-top:1rem;">
+
+  <!-- Goals -->
+  <div class="card-grid-2 mb-3">
+    <div class="glass-card feature-card scroll-reveal">
+      <div class="card-icon-wrap icon-red">🎯</div>
+      <h3>Problem Statement</h3>
+      <p>Climate change is the defining challenge of our era, yet temperature
+         data remains inaccessible to most people. This project bridges that gap
+         by transforming raw CSV records into interactive insights and forward-looking
+         predictions.</p>
+    </div>
+    <div class="glass-card feature-card scroll-reveal">
+      <div class="card-icon-wrap icon-green">✅</div>
+      <h3>Project Goals</h3>
+      <p>Identify long-term warming trends. Visualise seasonal and decadal patterns.
+         Build interpretable ML models. Provide an interactive prediction interface.
+         Enable reproducibility via a detailed Jupyter notebook.</p>
+    </div>
+  </div>
+
+  <!-- Tech Stack -->
+  <span class="section-label">Technology Stack</span>
+  <h2 class="section-title" style="font-size:1.4rem;margin-bottom:1.5rem;">Built With</h2>
+
+  <div class="card-grid-4 mb-3">
+    <div class="glass-card feature-card scroll-reveal">
+      <div class="card-icon-wrap icon-cyan">🐍</div>
+      <h3>Python 3.11</h3>
+      <p>Core language for data processing, model training, and server-side logic.</p>
+      <div class="tech-tags">
+        <span class="tech-tag">pandas</span>
+        <span class="tech-tag">numpy</span>
+        <span class="tech-tag">scikit-learn</span>
+      </div>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="transition-delay:0.1s">
+      <div class="card-icon-wrap icon-green">🌶️</div>
+      <h3>Flask 3.0</h3>
+      <p>Lightweight WSGI web framework powering the REST API and template rendering.</p>
+      <div class="tech-tags">
+        <span class="tech-tag">Jinja2</span>
+        <span class="tech-tag">Werkzeug</span>
+        <span class="tech-tag">REST API</span>
+      </div>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="transition-delay:0.2s">
+      <div class="card-icon-wrap icon-amber">📊</div>
+      <h3>Data Visualisation</h3>
+      <p>Rich static charts from Matplotlib/Seaborn; interactive charts via Chart.js.</p>
+      <div class="tech-tags">
+        <span class="tech-tag">matplotlib</span>
+        <span class="tech-tag">seaborn</span>
+        <span class="tech-tag">chart.js</span>
+      </div>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="transition-delay:0.3s">
+      <div class="card-icon-wrap icon-red">🤖</div>
+      <h3>Machine Learning</h3>
+      <p>Scikit-learn pipelines with feature engineering, model training, and evaluation.</p>
+      <div class="tech-tags">
+        <span class="tech-tag">LinearRegression</span>
+        <span class="tech-tag">RandomForest</span>
+        <span class="tech-tag">pickle</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Architecture -->
+  <span class="section-label">Architecture</span>
+  <h2 class="section-title" style="font-size:1.4rem;margin-bottom:1.5rem;">Project Structure</h2>
+
+  <div class="glass-card scroll-reveal mb-3" style="padding:2rem;">
+    <pre class="code-block"><span class="code-dir">climate_project/</span>
+├── <span class="code-file">app.py</span>                   Flask application (routes, model loading)
+├── <span class="code-file">requirements.txt</span>         Python dependencies
+│
+├── <span class="code-dir">model/</span>
+│   ├── <span class="code-file">train_model.py</span>       Training script (LR + RF pipelines)
+│   ├── <span class="code-file">best_model.pkl</span>       Serialised best model
+│   ├── <span class="code-file">lr_model.pkl</span>         Linear Regression model
+│   ├── <span class="code-file">rf_model.pkl</span>         Random Forest model
+│   ├── <span class="code-file">metrics.pkl</span>          Evaluation metrics
+│   └── <span class="code-file">data_summary.pkl</span>     Dataset summary stats
+│
+├── <span class="code-dir">dataset/</span>
+│   └── <span class="code-file">GlobalTemperatures.csv</span>   Berkeley Earth data
+│
+├── <span class="code-dir">notebook/</span>
+│   └── <span class="code-file">ClimateAnalysis.ipynb</span>    Full Jupyter notebook
+│
+├── <span class="code-dir">templates/</span>
+│   ├── <span class="code-file">base.html</span>            Master layout template
+│   ├── <span class="code-file">index.html</span>           Home page
+│   ├── <span class="code-file">analysis.html</span>        Charts &amp; EDA
+│   ├── <span class="code-file">predict.html</span>         Prediction form
+│   └── <span class="code-file">about.html</span>           This page
+│
+└── <span class="code-dir">static/</span>
+    ├── <span class="code-file">css/style.css</span>        Global stylesheet
+    ├── <span class="code-file">js/main.js</span>           Client-side interactivity
+    └── <span class="code-dir">images/</span>              Generated chart PNGs</pre>
+  </div>
+
+  <!-- Dataset -->
+  <span class="section-label">Data Source</span>
+  <h2 class="section-title" style="font-size:1.4rem;margin-bottom:1.5rem;">Berkeley Earth Surface Temperature Dataset</h2>
+
+  <div class="glass-card feature-card scroll-reveal mb-3">
+    <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.75;">
+      The dataset used is the <strong>Berkeley Earth Global Temperature</strong> record
+      (also available on Kaggle as <code style="font-family:var(--font-mono);color:var(--amber);background:rgba(251,191,36,0.1);padding:2px 6px;border-radius:4px;">GlobalTemperatures.csv</code>).
+      It contains monthly land average temperatures from 1750 to 2015, with columns for
+      average, minimum, and maximum land temperatures as well as land-ocean combined averages.
+    </p>
+    <div class="tech-tags">
+      <span class="tech-tag">1750–2015</span>
+      <span class="tech-tag">Monthly resolution</span>
+      <span class="tech-tag">Land + Ocean</span>
+      <span class="tech-tag">Global average</span>
+      <span class="tech-tag">Berkeley Earth</span>
+    </div>
+  </div>
+
+  <!-- Routes -->
+  <span class="section-label">API Endpoints</span>
+  <h2 class="section-title" style="font-size:1.4rem;margin-bottom:1.5rem;">Available Routes</h2>
+
+  <div class="glass-card scroll-reveal" style="padding:0;overflow:hidden;">
+    <table class="metrics-table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Route</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tech-tag" style="color:var(--green);">GET</span></td>
+          <td><span class="mono">/</span></td>
+          <td style="color:var(--text-secondary);">Home dashboard</td>
+        </tr>
+        <tr>
+          <td><span class="tech-tag" style="color:var(--green);">GET</span></td>
+          <td><span class="mono">/analysis</span></td>
+          <td style="color:var(--text-secondary);">Global EDA charts &amp; metrics</td>
+        </tr>
+        <tr>
+          <td><span class="tech-tag" style="color:var(--amber);">POST</span></td>
+          <td><span class="mono">/predict</span></td>
+          <td style="color:var(--text-secondary);">Unified prediction page (city + global tabs)</td>
+        </tr>
+        <tr>
+          <td><span class="tech-tag" style="color:var(--amber);">POST</span></td>
+          <td><span class="mono">/api/predict</span></td>
+          <td style="color:var(--text-secondary);">JSON API — city prediction</td>
+        </tr>
+        <tr>
+          <td><span class="tech-tag" style="color:var(--amber);">POST</span></td>
+          <td><span class="mono">/api/global</span></td>
+          <td style="color:var(--text-secondary);">JSON API — global prediction</td>
+        </tr>
+        <tr>
+          <td><span class="tech-tag" style="color:var(--green);">GET</span></td>
+          <td><span class="mono">/api/weather</span></td>
+          <td style="color:var(--text-secondary);">Live weather via Open-Meteo (no API key)</td>
+        </tr>
+        <tr>
+          <td><span class="tech-tag" style="color:var(--green);">GET</span></td>
+          <td><span class="mono">/api/cities</span></td>
+          <td style="color:var(--text-secondary);">List all supported cities</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-band" style="padding:4rem 0 2rem;">
+    <h2 class="section-title" style="margin-bottom:1rem;">Explore the Project</h2>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="/analysis" class="btn-primary">View Analysis</a>
+      <a href="/predict" class="btn-secondary">Make Prediction</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

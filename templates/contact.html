@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Contact | Unveiling Climate Change Dynamics Through Earth Surface Temperature Analysis{% endblock %}
+
+{% block content %}
+<div class="contact-wrap">
+  <span class="section-label fade-up">Get In Touch</span>
+  <h1 class="section-title fade-up" style="font-size:clamp(2rem,4vw,3rem);">Contact Us</h1>
+  <p class="section-desc fade-up-1">
+    Have questions about the project, the data, or the models?
+    We'd love to hear from you.
+  </p>
+
+  <div id="successBanner" class="success-banner">
+    ✅ Message received! We'll get back to you soon.
+  </div>
+
+  <form id="contactForm" class="glass-card fade-up-2">
+    <div class="contact-form-group">
+      <label class="form-label">Name</label>
+      <input class="contact-input" type="text" name="name" placeholder="Your name" required>
+    </div>
+    <div class="contact-form-group">
+      <label class="form-label">Email</label>
+      <input class="contact-input" type="email" name="email" placeholder="your@email.com" required>
+    </div>
+    <div class="contact-form-group">
+      <label class="form-label">Subject</label>
+      <input class="contact-input" type="text" name="subject" placeholder="What's this about?">
+    </div>
+    <div class="contact-form-group">
+      <label class="form-label">Message</label>
+      <textarea class="contact-textarea" name="message" placeholder="Your message here…" required></textarea>
+    </div>
+    <button type="submit" class="submit-btn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2 8L13 3L10 8L13 13L2 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      Send Message
+    </button>
+  </form>
+
+  <div class="card-grid-3 mt-4">
+    <div class="glass-card feature-card scroll-reveal" style="text-align:center;">
+      <div class="card-icon-wrap icon-cyan" style="margin:0 auto 0.75rem;">🐍</div>
+      <h3>GitHub</h3>
+      <p>Explore the source code, raise issues, or contribute to the project.</p>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="text-align:center;transition-delay:0.1s;">
+      <div class="card-icon-wrap icon-green" style="margin:0 auto 0.75rem;">🤗</div>
+      <h3>Hugging Face</h3>
+      <p>Live demo hosted on Hugging Face Spaces — no setup required.</p>
+    </div>
+    <div class="glass-card feature-card scroll-reveal" style="text-align:center;transition-delay:0.2s;">
+      <div class="card-icon-wrap icon-amber" style="margin:0 auto 0.75rem;">📊</div>
+      <h3>Dataset</h3>
+      <p>Berkeley Earth Surface Temperature dataset — open and freely available.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

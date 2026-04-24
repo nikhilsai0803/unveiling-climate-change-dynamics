@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+{% block title %}Predict Temperature | Unveiling Climate Change Dynamics Through Earth Surface Temperature Analysis{% endblock %}
+
+{% block content %}
+<div class="section" style="padding-top:100px;">
+  <span class="section-label">Dual-Mode ML Forecasting</span>
+  <h1 class="section-title">Predict Temperature</h1>
+  <p class="section-desc">
+    Switch between <strong>City-Level</strong> (local realistic forecast) and
+    <strong>Global Average</strong> (scientific Earth mean used in climate research).
+    Both powered by separate trained ML models.
+  </p>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn {% if tab != 'global' %}active{% endif %}"
+            onclick="switchTab('city')" id="tab-city">
+      📍 City Prediction
+    </button>
+    <button class="tab-btn {% if tab == 'global' %}active{% endif %}"
+            onclick="switchTab('global')" id="tab-global">
+      🌍 Global Average
+    </button>
+  </div>
+
+  <!-- ═══ TAB 1 — CITY ═══ -->
+  <div class="tab-pane {% if tab != 'global' %}active{% endif %}" id="pane-city">
+    <div class="predict-layout">
+
+      <!-- Form -->
+      <div class="form-glass">
+        <div class="form-title">📍 City-Level Prediction</div>
+        <p class="form-subtitle">
+          Returns the actual local temperature for that city and month —
+          just like checking a weather forecast.
+        </p>
+        <form method="POST" action="/predict">
+          <input type="hidden" name="tab" value="city">
+
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <select class="form-select" name="city" id="citySelect" onchange="updateCityHint()">
+              {% for c in cities %}
+              <option value="{{ c }}"
+                {% if city_result and city_result.city == c %}selected
+                {% elif not city_result and c == 'Hyderabad' %}selected{% endif %}>
+                {{ c }}
+              </option>
+              {% endfor %}
+            </select>
+            <div id="cityHint" class="form-hint"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Year</label>
+            <input class="form-input" type="number" name="year"
+              min="1950" max="2100"
+              value="{{ city_result.year if city_result else 2025 }}"
+              placeholder="1950 – 2100">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Month</label>
+            <select class="form-select" name="month">
+              {% set mnames=['January','February','March','April','May','June',
+                             'July','August','September','October','November','December'] %}
+              {% for i in range(1,13) %}
+              <option value="{{ i }}"
+                {% if city_result and city_result.month == mnames[i-1] %}selected
+                {% elif not city_result and i == 5 %}selected{% endif %}>
+                {{ mnames[i-1] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-note">
+            <strong>✓ City-calibrated model</strong> — trained on local baselines.<br>
+            Hyderabad May → ~36°C, Moscow Jan → ~-7°C.<br>
+            <strong style="color:var(--green);">✓ Live weather</strong> shown automatically for current/past years via Open-Meteo.
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2 L14 8 L8 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 8 H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Predict City Temperature
+          </button>
+
+          {% if error and tab != 'global' %}
+          <div class="error-box mt-2">⚠ {{ error }}</div>
+          {% endif %}
+        </form>
+      </div>
+
+      <!-- City Result -->
+      <div class="result-panel">
+        {% if city_result %}
+        <div class="result-glass has-result">
+          <div class="result-header">
+            <div>
+              <span class="section-label" style="margin-bottom:0.15rem;">City ML Prediction</span>
+              <p class="result-meta-small">
+                {{ city_result.city }}, {{ city_result.country }} —
+                {{ city_result.month }} {{ city_result.year }}
+              </p>
+            </div>
+            <span class="result-emoji">📍</span>
+          </div>
+
+          <div class="result-temp-display">
+            <span class="temp-value">{{ city_result.best_pred }}</span>
+            <span class="temp-unit">°C</span>
+          </div>
+
+          <div class="result-tags">
+            <span class="tag tag-default">{{ city_result.season }}</span>
+            {% if city_result.anomaly is not none %}
+              {% if city_result.anomaly > 0 %}
+              <span class="tag tag-red">↑ +{{ city_result.anomaly }}°C above historical</span>
+              {% elif city_result.anomaly < 0 %}
+              <span class="tag tag-blue">↓ {{ city_result.anomaly }}°C below historical</span>
+              {% else %}
+              <span class="tag tag-default">At historical average</span>
+              {% endif %}
+            {% endif %}
+          </div>
+
+          {% if city_result.anomaly is not none %}
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted);margin-bottom:0.4rem;">
+              <span>Baseline: {{ city_result.baseline }}°C</span>
+              <span>Predicted: {{ city_result.best_pred }}°C</span>
+            </div>
+            <div class="anomaly-track">
+              {% set fp = [[((city_result.anomaly|abs)/5*100), 100]|min, 0]|max %}
+              <div class="anomaly-fill" style="width:{{ fp }}%;
+                background:{{ 'linear-gradient(90deg,#f87171,#fbbf24)' if city_result.anomaly > 0 else 'linear-gradient(90deg,#60a5fa,#38bdf8)' }};"></div>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="model-breakdown">
+            <div class="breakdown-label">Model Breakdown</div>
+            {% if city_result.lr_pred %}
+            <div class="model-row">
+              <span class="model-name">Linear Regression</span>
+              <span class="model-val">{{ city_result.lr_pred }}°C</span>
+            </div>
+            {% endif %}
+            {% if city_result.rf_pred %}
+            <div class="model-row">
+              <span class="model-name">Random Forest</span>
+              <span class="model-val">{{ city_result.rf_pred }}°C</span>
+            </div>
+            {% endif %}
+            <div class="model-row">
+              <span class="model-name" style="color:var(--text-primary);font-weight:600;">Best Model</span>
+              <span class="model-val best">{{ city_result.best_pred }}°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Weather -->
+        {% if city_result.live %}
+        <div class="vs-divider">Live Weather Right Now</div>
+        <div class="live-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+            <span style="font-size:0.7rem;color:var(--text-muted);">Open-Meteo API · Free · No key</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:1rem;margin-bottom:1rem;">
+            <span class="live-temp-big">{{ city_result.live.temp }}<span style="font-size:1.4rem;color:var(--text-muted);">°C</span></span>
+            <div style="padding-bottom:0.35rem;">
+              <div style="font-weight:600;font-size:0.95rem;">{{ city_result.live.description }}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">{{ 'Daytime' if city_result.live.is_day else 'Nighttime' }}</div>
+            </div>
+          </div>
+          <div class="weather-grid">
+            <div class="weather-tile">
+              <span class="wt-val">{{ city_result.live.feels_like }}°C</span>
+              <div class="wt-lab">Feels Like</div>
+            </div>
+            <div class="weather-tile">
+              <span class="wt-val">{{ city_result.live.humidity }}%</span>
+              <div class="wt-lab">Humidity</div>
+            </div>
+            <div class="weather-tile">
+              <span class="wt-val">{{ city_result.live.windspeed }} km/h</span>
+              <div class="wt-lab">Wind Speed</div>
+            </div>
+            <div class="weather-tile">
+              <span class="wt-val">{{ city_result.lat }}°, {{ city_result.lon }}°</span>
+              <div class="wt-lab">Coordinates</div>
+            </div>
+          </div>
+          <div class="vs-divider" style="margin:1rem 0 0.75rem;">ML vs Actual</div>
+          <div class="compare-grid">
+            <div class="compare-tile">
+              <span class="ct-val" style="color:var(--green);">{{ city_result.live.temp }}°C</span>
+              <div class="ct-lab">Actual Now</div>
+            </div>
+            <div class="compare-tile">
+              <span class="ct-val" style="color:var(--cyan);">{{ city_result.best_pred }}°C</span>
+              <div class="ct-lab">ML Prediction</div>
+            </div>
+            <div class="compare-tile">
+              {% set diff = (city_result.live.temp - city_result.best_pred)|round(1) %}
+              <span class="ct-val" style="color:{{ '#fbbf24' if diff|abs < 4 else '#f87171' }};">
+                {% if diff > 0 %}+{% endif %}{{ diff }}°C
+              </span>
+              <div class="ct-lab">Difference</div>
+            </div>
+          </div>
+        </div>
+        {% elif city_result %}
+        <div class="result-glass" style="text-align:center;padding:1.5rem;">
+          <div style="font-size:0.85rem;color:var(--text-muted);">
+            ⚡ Live weather unavailable — network or API issue.<br>
+            <span style="font-size:0.75rem;">ML prediction above is still valid.</span>
+          </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="result-glass">
+          <div class="empty-state">
+            <div class="empty-icon">📍</div>
+            <div class="empty-title">Select a city and submit to get a local temperature prediction</div>
+            <div class="empty-hint">20 cities · 1950–2100 · Real-time weather for present year</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div><!-- /pane-city -->
+
+  <!-- ═══ TAB 2 — GLOBAL ═══ -->
+  <div class="tab-pane {% if tab == 'global' %}active{% endif %}" id="pane-global">
+    <div class="predict-layout">
+
+      <!-- Form -->
+      <div class="form-glass">
+        <div class="form-title">🌍 Global Average Prediction</div>
+        <p class="form-subtitle">
+          Predicts the <strong>average temperature across all of Earth's land surface</strong>
+          — the same metric used by climate scientists and the IPCC.
+        </p>
+        <form method="POST" action="/predict">
+          <input type="hidden" name="tab" value="global">
+
+          <div class="form-group">
+            <label class="form-label">Year</label>
+            <input class="form-input" type="number" name="year"
+              min="1900" max="2100"
+              value="{{ global_result.year if global_result else 2025 }}"
+              placeholder="1900 – 2100">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Month</label>
+            <select class="form-select" name="month">
+              {% set mnames=['January','February','March','April','May','June',
+                             'July','August','September','October','November','December'] %}
+              {% for i in range(1,13) %}
+              <option value="{{ i }}"
+                {% if global_result and global_result.month == mnames[i-1] %}selected
+                {% elif not global_result and i == 7 %}selected{% endif %}>
+                {{ mnames[i-1] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="global-note">
+            <strong>⚠ What does "Global Average" mean?</strong><br>
+            The global land average is computed by averaging ALL land points on Earth —
+            including the Sahara (+45°C), Arctic tundra (−30°C), Siberia (−20°C) and tropics (+35°C).
+            The result is always between <strong>5°C–14°C</strong>, regardless of local conditions.
+            This is a <em>climate science metric</em>, not a local weather number.
+          </div>
+
+          <div class="mt-3">
+            <button type="submit" class="submit-btn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Predict Global Average
+            </button>
+          </div>
+
+          {% if error and tab == 'global' %}
+          <div class="error-box mt-2">⚠ {{ error }}</div>
+          {% endif %}
+        </form>
+      </div>
+
+      <!-- Global Result -->
+      <div class="result-panel">
+        {% if global_result %}
+        <div class="result-glass has-result">
+          <div class="result-header">
+            <div>
+              <span class="section-label" style="margin-bottom:0.15rem;">Global ML Prediction</span>
+              <p class="result-meta-small">Earth Land Surface — {{ global_result.month }} {{ global_result.year }}</p>
+            </div>
+            <span class="result-emoji">🌍</span>
+          </div>
+
+          <div class="result-temp-display">
+            <span class="temp-value">{{ global_result.best_pred }}</span>
+            <span class="temp-unit">°C</span>
+          </div>
+
+          <div class="result-tags">
+            <span class="tag tag-default">{{ global_result.season }}</span>
+            <span class="tag tag-default">Global Average</span>
+            {% if global_result.anomaly is not none %}
+              {% if global_result.anomaly > 0 %}
+              <span class="tag tag-red">+{{ global_result.anomaly }}°C above pre-industrial</span>
+              {% else %}
+              <span class="tag tag-blue">{{ global_result.anomaly }}°C vs baseline</span>
+              {% endif %}
+            {% endif %}
+          </div>
+
+          <div class="compare-grid mt-3">
+            <div class="compare-tile">
+              <span class="ct-val" style="color:var(--text-muted);">{{ global_result.baseline }}°C</span>
+              <div class="ct-lab">Pre-industrial</div>
+            </div>
+            <div class="compare-tile">
+              <span class="ct-val" style="color:var(--cyan);">{{ global_result.best_pred }}°C</span>
+              <div class="ct-lab">Predicted</div>
+            </div>
+            <div class="compare-tile">
+              {% set a = global_result.anomaly or 0 %}
+              <span class="ct-val" style="color:{{ 'var(--red)' if a > 0 else 'var(--blue)' }};">
+                {% if a > 0 %}+{% endif %}{{ a }}°C
+              </span>
+              <div class="ct-lab">Anomaly</div>
+            </div>
+          </div>
+
+          <div class="model-breakdown">
+            <div class="breakdown-label">Model Breakdown</div>
+            {% if global_result.lr_pred %}
+            <div class="model-row">
+              <span class="model-name">Linear Regression</span>
+              <span class="model-val">{{ global_result.lr_pred }}°C</span>
+            </div>
+            {% endif %}
+            {% if global_result.rf_pred %}
+            <div class="model-row">
+              <span class="model-name">Random Forest</span>
+              <span class="model-val">{{ global_result.rf_pred }}°C</span>
+            </div>
+            {% endif %}
+            <div class="model-row">
+              <span class="model-name" style="color:var(--text-primary);font-weight:600;">Best Model</span>
+              <span class="model-val best">{{ global_result.best_pred }}°C</span>
+            </div>
+          </div>
+
+          <div class="global-note mt-2">
+            <strong>💡 Why is this not 36°C?</strong><br>
+            {{ global_result.meaning }}
+          </div>
+        </div>
+
+        {% else %}
+        <div class="result-glass">
+          <div class="empty-state">
+            <div class="empty-icon">🌍</div>
+            <div class="empty-title">Enter a year and month to predict the global land surface average</div>
+            <div class="empty-hint">Expected range: 5°C – 14°C · 1900–2100</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div><!-- /pane-global -->
+
+  <!-- Explainer -->
+  <div class="mt-4" style="padding-top:2rem;border-top:1px solid var(--border);">
+    <span class="section-label">Understanding the Two Modes</span>
+    <h2 class="section-title" style="font-size:1.3rem;margin-bottom:1.5rem;">City vs Global — What's the Difference?</h2>
+    <div class="card-grid-3">
+      <div class="glass-card feature-card">
+        <div class="card-icon-wrap icon-cyan">📍</div>
+        <h3>City Prediction</h3>
+        <p>Trained on local baselines per city. Hyderabad May → <strong>~36–38°C</strong>.
+           Moscow January → <strong>~-7°C</strong>. Useful for real-world applications,
+           travel planning, agricultural forecasting.</p>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="card-icon-wrap icon-amber">🌍</div>
+        <h3>Global Average</h3>
+        <p>Predicts mean across all land on Earth. Always <strong>5–14°C</strong>.
+           Used by IPCC, climate scientists, and policy makers to track warming trends
+           and anomalies relative to pre-industrial baseline.</p>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="card-icon-wrap icon-green">⚡</div>
+        <h3>Live Weather Layer</h3>
+        <p>Open-Meteo API provides <strong>real-time temperature</strong> for city predictions.
+           Free, no API key required. Works on all hosting platforms. 10,000 req/day.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cityData = {{ CITIES | tojson | safe }};
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('pane-' + name).classList.add('active');
+  document.querySelectorAll('input[name="tab"]').forEach(i => i.value = name);
+}
+
+function updateCityHint() {
+  const city = document.getElementById('citySelect')?.value;
+  const el   = document.getElementById('cityHint');
+  if (city && el && cityData[city]) {
+    const info = cityData[city];
+    el.textContent = `${info.country} · ${info.lat}°, ${info.lon}° · Current month avg: ${info.monthly_avg[new Date().getMonth()]}°C`;
+  }
+}
+updateCityHint();
+</script>
+{% endblock %}
