@@ -10,6 +10,16 @@
 
 ---
 
+## 🔴 Live Demo
+
+**👉 [Try it on Hugging Face Spaces](https://huggingface.co/spaces/sharmasai12/Unveiling-climate-change-dynamics-through-earth-surface-temperature-analysis)**
+
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-xl-dark.svg)](https://huggingface.co/spaces/sharmasai12/Unveiling-climate-change-dynamics-through-earth-surface-temperature-analysis)
+
+> No sign-up required. Runs entirely in the browser via Hugging Face's hosted Docker runtime.
+
+---
+
 ## ✨ Features
 
 | | Feature | Description |
